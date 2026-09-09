@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.11.4
       - name: Run pre-commit hooks
