@@ -33,7 +33,7 @@ jobs:
       image: ${{ steps.image.outputs.uri }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -69,7 +69,7 @@ jobs:
     environment: staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -106,7 +106,7 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4

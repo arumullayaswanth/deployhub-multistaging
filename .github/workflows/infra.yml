@@ -38,7 +38,7 @@ jobs:
         working-directory: terraform/environments/staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -79,7 +79,7 @@ jobs:
         working-directory: terraform/environments/staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -184,7 +184,7 @@ jobs:
         working-directory: terraform/environments/production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Log in to AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
