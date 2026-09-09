@@ -25,6 +25,6 @@ describe("health & metrics endpoints", () => {
     test("GET / returns the homepage", async () => {
         const res = await request(app).get("/");
         expect(res.status).toBe(200);
-        expect(res.text).toContain("8Byte Sample App");
+        expect(res.text).toContain("DeployHub Sample App");
     });
 });

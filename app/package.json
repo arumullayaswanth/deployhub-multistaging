@@ -1,5 +1,5 @@
 {
-  "name": "8byte-sample-app",
+  "name": "deployhub-sample-app",
   "version": "1.0.0",
   "description": "Sample Express API with health, metrics and a db-backed endpoint.",
   "main": "src/server.js",

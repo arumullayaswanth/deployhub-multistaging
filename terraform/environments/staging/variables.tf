@@ -5,7 +5,7 @@ variable "region" {
 
 variable "project" {
   type    = string
-  default = "8byte-devops-assignment"
+  default = "deployhub-multistaging"
 }
 
 variable "environment" {

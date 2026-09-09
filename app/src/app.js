@@ -14,7 +14,7 @@ function createApp() {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>8Byte Sample App</title>
+  <title>DeployHub Sample App</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
     h1 { margin-bottom: 4px; }
@@ -28,7 +28,7 @@ function createApp() {
   </style>
 </head>
 <body>
-  <h1>8Byte Sample App</h1>
+  <h1>DeployHub Sample App</h1>
   <p class="ok">Status: running</p>
 
   <div class="card">
@@ -83,7 +83,7 @@ function createApp() {
     });
 
     app.post("/visits", async (req, res) => {
-        const note = (req.body && req.body.note) || "hello from 8byte";
+        const note = (req.body && req.body.note) || "hello from deployhub";
         const result = await pool.query(
             "INSERT INTO visits (note) VALUES ($1) RETURNING id, note, created_at",
             [note]

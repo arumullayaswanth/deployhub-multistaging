@@ -1,4 +1,4 @@
-# 8Byte DevOps Assignment - Step by Step Deploy Guide
+# DeployHub Multistaging - Step by Step Deploy Guide
 
 ## Architecture
 
@@ -24,7 +24,7 @@ Follow these in order. Every step says exactly where to click and what to type.
 1. In the AWS console search bar, type `S3` and click **S3**
 2. Click **Create bucket**
 3. Fill in:
-   - **Bucket name:** `8byte-tfstate-yourname` (must be globally unique)
+   - **Bucket name:** `deployhub-tfstate-yourname` (must be globally unique)
    - **AWS Region:** Asia Pacific (Mumbai) ap-south-1
    - **Bucket Versioning:** Enable
    - **Block all public access:** leave ON
@@ -73,7 +73,7 @@ Follow these in order. Every step says exactly where to click and what to type.
    - **IAMFullAccess**
 5. Click **Next**
 6. Fill in:
-   - **Role name:** `8byte-github-deploy`
+   - **Role name:** `deployhub-github-deploy`
 7. Click **Create role**
 8. Open the role, go to **Trust relationships** tab, click **Edit trust policy**
 9. Set the `sub` condition to your repo:
@@ -99,7 +99,7 @@ Follow these in order. Every step says exactly where to click and what to type.
 3. On the **Secrets** tab, click **New repository secret** and add the sensitive one:
    - **SLACK_WEBHOOK_URL:** a Slack incoming webhook (skip this if you don't use Slack)
 4. On the **Variables** tab, click **New repository variable** and add the rest:
-   - **AWS_OIDC_ROLE_ARN:** the role ARN from Step 4 (e.g. `arn:aws:iam::<account>:role/8byte-github-deploy`). It's a variable, not a secret, so you can see it and confirm there's no typo.
+   - **AWS_OIDC_ROLE_ARN:** the role ARN from Step 4 (e.g. `arn:aws:iam::<account>:role/deployhub-github-deploy`). It's a variable, not a secret, so you can see it and confirm there's no typo.
    - **TF_STATE_BUCKET:** the bucket name from Step 1
    - **TF_LOCK_TABLE:** the DynamoDB table name from Step 2 (`terraform-state-lock`)
    - **ALERT_EMAIL:** your email for alerts
@@ -196,7 +196,7 @@ Follow these in order. Every step says exactly where to click and what to type.
 2. Then delete the manual pieces:
    - The S3 state bucket (empty it first)
    - The DynamoDB table `terraform-state-lock`
-   - In IAM, the role `8byte-github-deploy` and the identity provider
+   - In IAM, the role `deployhub-github-deploy` and the identity provider
 
 ---
 

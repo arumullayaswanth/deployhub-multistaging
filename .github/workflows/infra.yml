@@ -143,7 +143,7 @@ jobs:
           URL=$(terraform output -raw alb_dns_name 2>/dev/null || echo "")
           if [ -n "$TOPIC" ]; then
             aws sns publish --topic-arn "$TOPIC" \
-              --subject "8Byte staging deployed" \
+              --subject "DeployHub staging deployed" \
               --message "Staging deployment finished successfully. App URL: http://$URL  Run: ${{ github.run_id }}" \
               --region ${AWS_REGION}
           fi
@@ -242,7 +242,7 @@ jobs:
           URL=$(terraform output -raw alb_dns_name 2>/dev/null || echo "")
           if [ -n "$TOPIC" ]; then
             aws sns publish --topic-arn "$TOPIC" \
-              --subject "8Byte production deployed" \
+              --subject "DeployHub production deployed" \
               --message "Production deployment finished successfully. App URL: http://$URL  Run: ${{ github.run_id }}" \
               --region ${AWS_REGION}
           fi
