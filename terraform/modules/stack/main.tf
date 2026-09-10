@@ -42,17 +42,20 @@ resource "aws_security_group" "app" {
   tags = { Name = "${var.name}-app-sg" }
 }
 
+# the network: VPC, subnets, gateways, route tables
 module "vpc" {
   source   = "../vpc"
   name     = var.name
   vpc_cidr = var.vpc_cidr
 }
 
+# the container registry for the app image
 module "ecr" {
   source = "../ecr"
   name   = var.ecr_repo_name
 }
 
+# the public load balancer + its security group and access logs
 module "alb" {
   source            = "../alb"
   name              = var.name
@@ -61,6 +64,7 @@ module "alb" {
   container_port    = var.container_port
 }
 
+# the PostgreSQL database with AWS-managed rotating credentials
 module "rds" {
   source                  = "../rds"
   name                    = var.name
@@ -72,6 +76,7 @@ module "rds" {
   skip_final_snapshot     = var.db_skip_final_snapshot
 }
 
+# the ECS Fargate cluster/service that runs the app container
 module "ecs" {
   source                 = "../ecs"
   name                   = var.name
@@ -88,6 +93,7 @@ module "ecs" {
   desired_count          = var.desired_count
 }
 
+# dashboards, alarms and SNS alerts for the whole stack
 module "monitoring" {
   source           = "../monitoring"
   name             = var.name

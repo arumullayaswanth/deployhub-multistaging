@@ -1,9 +1,12 @@
+# current region for the dashboard widgets
 data "aws_region" "current" {}
 
+# SNS topic that alarms publish to
 resource "aws_sns_topic" "alerts" {
   name = "${var.name}-alerts"
 }
 
+# email subscription to the topic (only if an alert email is provided)
 resource "aws_sns_topic_subscription" "email" {
   count     = var.alert_email == "" ? 0 : 1
   topic_arn = aws_sns_topic.alerts.arn
@@ -11,7 +14,7 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.alert_email
 }
 
-# dashboard 1: app + infra
+# dashboard 1: app + infra (ECS CPU/memory, ALB requests, 5xx, latency)
 resource "aws_cloudwatch_dashboard" "app" {
   dashboard_name = "${var.name}-app-infra"
   dashboard_body = jsonencode({
@@ -57,7 +60,7 @@ resource "aws_cloudwatch_dashboard" "app" {
   })
 }
 
-# dashboard 2: database
+# dashboard 2: database (RDS CPU, connections, storage, memory)
 resource "aws_cloudwatch_dashboard" "db" {
   dashboard_name = "${var.name}-database"
   dashboard_body = jsonencode({
@@ -90,6 +93,7 @@ resource "aws_cloudwatch_dashboard" "db" {
   })
 }
 
+# alarm: ECS CPU over 80%
 resource "aws_cloudwatch_metric_alarm" "ecs_cpu_high" {
   alarm_name          = "${var.name}-ecs-cpu-high"
   comparison_operator = "GreaterThanThreshold"
@@ -108,6 +112,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_cpu_high" {
   ok_actions    = [aws_sns_topic.alerts.arn]
 }
 
+# alarm: too many 5xx errors from the load balancer targets
 resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
   alarm_name          = "${var.name}-alb-5xx-high"
   comparison_operator = "GreaterThanThreshold"
@@ -123,6 +128,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
   treat_missing_data  = "notBreaching"
 }
 
+# alarm: RDS CPU over 80%
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   alarm_name          = "${var.name}-rds-cpu-high"
   comparison_operator = "GreaterThanThreshold"

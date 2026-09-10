@@ -1,6 +1,9 @@
+# current account id, used to name the log bucket uniquely
 data "aws_caller_identity" "current" {}
+# the AWS account that writes ALB access logs (region-specific)
 data "aws_elb_service_account" "main" {}
 
+# security group for the load balancer - allows web traffic from the internet
 resource "aws_security_group" "alb" {
   name        = "${var.name}-alb-sg"
   description = "web traffic to the alb"
@@ -33,13 +36,14 @@ resource "aws_security_group" "alb" {
   tags = { Name = "${var.name}-alb-sg" }
 }
 
-# bucket for alb access logs
+# S3 bucket that stores the load balancer access logs
 resource "aws_s3_bucket" "logs" {
   bucket        = "${var.name}-alb-access-logs-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
   tags          = { Name = "${var.name}-alb-logs" }
 }
 
+# block all public access to the log bucket
 resource "aws_s3_bucket_public_access_block" "logs" {
   bucket                  = aws_s3_bucket.logs.id
   block_public_acls       = true
@@ -48,6 +52,7 @@ resource "aws_s3_bucket_public_access_block" "logs" {
   restrict_public_buckets = true
 }
 
+# let the ELB service write log files into the bucket
 resource "aws_s3_bucket_policy" "logs" {
   bucket = aws_s3_bucket.logs.id
   policy = jsonencode({
@@ -61,6 +66,7 @@ resource "aws_s3_bucket_policy" "logs" {
   })
 }
 
+# the public application load balancer that receives all user traffic
 resource "aws_lb" "this" {
   name               = "${var.name}-alb"
   internal           = false
@@ -77,6 +83,7 @@ resource "aws_lb" "this" {
   depends_on = [aws_s3_bucket_policy.logs]
 }
 
+# target group the ECS tasks register into, with a /health check
 resource "aws_lb_target_group" "this" {
   name        = "${var.name}-tg"
   port        = var.container_port
@@ -96,7 +103,8 @@ resource "aws_lb_target_group" "this" {
   tags = { Name = "${var.name}-tg" }
 }
 
-# http only for now. prod should add a 443 listener with acm + redirect
+# listener on port 80 that forwards traffic to the target group
+# (http only for now, prod should add a 443 listener with acm + redirect)
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.this.arn
   port              = 80

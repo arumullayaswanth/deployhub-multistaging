@@ -1,5 +1,7 @@
+# current region, used in the log config
 data "aws_region" "current" {}
 
+# CloudWatch log group where the app's container logs go
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/${var.name}"
   retention_in_days = var.log_retention_days
@@ -8,6 +10,7 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # app SG comes from the root module so rds can reference it without a cycle
 
+# trust policy letting ECS tasks assume the roles below
 data "aws_iam_policy_document" "assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -18,17 +21,19 @@ data "aws_iam_policy_document" "assume" {
   }
 }
 
+# execution role - ECS uses it to pull images, write logs, read secrets
 resource "aws_iam_role" "execution" {
   name               = "${var.name}-ecs-execution"
   assume_role_policy = data.aws_iam_policy_document.assume.json
 }
 
+# attach the AWS-managed ECS execution policy to that role
 resource "aws_iam_role_policy_attachment" "execution_managed" {
   role       = aws_iam_role.execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# lets the execution role pull the db secret to inject as env
+# lets the execution role read the db secret to inject as env
 resource "aws_iam_role_policy" "secrets" {
   name = "${var.name}-read-db-secret"
   role = aws_iam_role.execution.id
@@ -42,11 +47,13 @@ resource "aws_iam_role_policy" "secrets" {
   })
 }
 
+# task role - the identity the running app itself uses
 resource "aws_iam_role" "task" {
   name               = "${var.name}-ecs-task"
   assume_role_policy = data.aws_iam_policy_document.assume.json
 }
 
+# the ECS cluster (Container Insights on for metrics)
 resource "aws_ecs_cluster" "this" {
   name = "${var.name}-cluster"
   setting {
@@ -55,6 +62,7 @@ resource "aws_ecs_cluster" "this" {
   }
 }
 
+# task definition - describes the container: image, port, env, secrets, logs
 resource "aws_ecs_task_definition" "this" {
   family                   = var.name
   requires_compatibilities = ["FARGATE"]
@@ -99,6 +107,7 @@ resource "aws_ecs_task_definition" "this" {
   ])
 }
 
+# the ECS service - keeps the desired number of tasks running behind the ALB
 resource "aws_ecs_service" "this" {
   name            = "${var.name}-svc"
   cluster         = aws_ecs_cluster.this.id
@@ -126,6 +135,7 @@ resource "aws_ecs_service" "this" {
   depends_on = [var.alb_listener_arn]
 }
 
+# autoscaling target - the range of task counts ECS can scale between
 resource "aws_appautoscaling_target" "ecs" {
   max_capacity       = var.max_count
   min_capacity       = var.desired_count
@@ -134,6 +144,7 @@ resource "aws_appautoscaling_target" "ecs" {
   service_namespace  = "ecs"
 }
 
+# scale tasks up/down to keep average CPU around 65%
 resource "aws_appautoscaling_policy" "cpu" {
   name               = "${var.name}-cpu-scaling"
   policy_type        = "TargetTrackingScaling"

@@ -1,9 +1,11 @@
+# tells RDS which subnets it can live in (the private data subnets)
 resource "aws_db_subnet_group" "this" {
   name       = "${var.name}-db-subnets"
   subnet_ids = var.private_data_subnet_ids
   tags       = { Name = "${var.name}-db-subnets" }
 }
 
+# database security group - only the app can reach postgres on 5432
 resource "aws_security_group" "db" {
   name        = "${var.name}-db-sg"
   description = "postgres from app tier only"
@@ -28,6 +30,7 @@ resource "aws_security_group" "db" {
   tags = { Name = "${var.name}-db-sg" }
 }
 
+# the PostgreSQL database - private, encrypted, with automated backups
 resource "aws_db_instance" "this" {
   identifier     = "${var.name}-postgres"
   engine         = "postgres"

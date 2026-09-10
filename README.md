@@ -76,15 +76,27 @@ Follow these in order. Every step says exactly where to click and what to type.
    - **Role name:** `deployhub-github-deploy`
 7. Click **Create role**
 8. Open the role, go to **Trust relationships** tab, click **Edit trust policy**
-9. Set the `sub` condition to your repo:
+9. Paste this exact trust policy (the wildcards handle the repo/owner IDs GitHub adds to the token, and cover branches, PRs and environments):
    ```json
-   "Condition": {
-     "StringEquals": {
-       "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-     },
-     "StringLike": {
-       "token.actions.githubusercontent.com:sub": "repo:yourname/yourrepo:*"
-     }
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "Federated": "arn:aws:iam::713939171080:oidc-provider/token.actions.githubusercontent.com"
+         },
+         "Action": "sts:AssumeRoleWithWebIdentity",
+         "Condition": {
+           "StringEquals": {
+             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+           },
+           "StringLike": {
+             "token.actions.githubusercontent.com:sub": "repo:arumullayaswanth*/deployhub-multistaging*"
+           }
+         }
+       }
+     ]
    }
    ```
 10. Click **Update policy**

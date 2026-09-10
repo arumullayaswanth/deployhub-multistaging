@@ -1,3 +1,4 @@
+# private container registry the CI/CD pipeline pushes images to
 resource "aws_ecr_repository" "this" {
   name                 = var.name
   image_tag_mutability = var.image_tag_mutability
@@ -15,7 +16,7 @@ resource "aws_ecr_repository" "this" {
   tags = { Name = var.name }
 }
 
-# drop untagged images so storage doesn't pile up
+# lifecycle rule to drop untagged images so storage doesn't pile up
 resource "aws_ecr_lifecycle_policy" "this" {
   repository = aws_ecr_repository.this.name
   policy = jsonencode({
